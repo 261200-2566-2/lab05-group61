@@ -1,50 +1,95 @@
-class Warrior {
-    private final double Level;
-    private double baseHp;
+interface Accessory {
+    void applyEffect(GameCharacter character);
+}
+
+class StrengthRing implements Accessory {
+    @Override
+    public void applyEffect(GameCharacter character) {
+        if (character instanceof Warrior warrior) {
+            warrior.increaseStrength(5);
+            warrior.increasePhysicDef(10);
+            warrior.setSlashDamageBonus(1 + 0.05);
+        }
+    }
+}
+
+class Glove implements Accessory {
+    @Override
+    public void applyEffect(GameCharacter character) {
+        if (character instanceof Wizard wizard) {
+            wizard.increaseIntelligence(5);
+            wizard.increaseMagicDef(10);
+            wizard.setFireballBonus(1 + 0.05);
+        }
+    }
+}
+
+record Sword(double baseAtk) {
+    public double getBaseAtk() {
+        return baseAtk;
+    }
+}
+
+record HeavyArmor(double baseDef) {
+    public double getBaseDef() {
+        return baseDef;
+    }
+}
+
+class GameCharacter {
+    public final double level;
+    public double baseHp;
+
+    public GameCharacter(double level, double baseHp) {
+        this.level = level;
+        this.baseHp = baseHp;
+    }
+
+    public double getLevel() {
+        return level;
+    }
+
+    public double getBaseHp() {
+        return baseHp;
+    }
+}
+
+class Warrior extends GameCharacter {
+    private double baseStr;
     private double baseDef;
     private Sword equippedSword;
     private HeavyArmor equippedHeavyArmor;
+    private double slashDamageBonus = 0;
+    private double Level;
 
-    public Warrior(double Level, double baseHp, double baseDef) {
-        this.Level = Level;
-        this.baseHp = baseHp;
+    public Warrior(double level, double baseHp, double baseStr, double baseDef) {
+        super(level, baseHp);
+        this.baseStr = baseStr;
         this.baseDef = baseDef;
-        this.equippedSword = null;
-        this.equippedHeavyArmor = null;
         updateStats();
     }
 
-    public void equipSword(Sword sword) {
-        this.equippedSword = sword;
-        updateStats();
+    public void equipAccessory(Accessory accessory) {
+        accessory.applyEffect(this);
     }
 
-    public void equipHeavyArmor(HeavyArmor HeavyArmor) {
-        this.equippedHeavyArmor = HeavyArmor;
-        updateStats();
+    public void increaseStrength(double value) {
+        this.baseStr += value;
     }
 
-    public void PVP(Wizard Wizard) {
-        printStats();
-        Wizard.printWizardStats();
-        System.out.println();
-
-        double damageDealt = CalculateAtk();
-        Wizard.DmgTaken(damageDealt);
-        System.out.println("JohnSmith dealt " + damageDealt + " damage to the Wizard.");
-
-        double damageTaken = Wizard.CalculateAtk()-baseDef;
-        DmgTaken(damageTaken);
-        System.out.println("JohnSmith took " + damageTaken + " damage from the Wizard.");
-        System.out.println();
+    public void increasePhysicDef(double value) {
+        this.baseDef += value;
     }
 
-    private double CalculateAtk() {
-        double Atk = 20;
+    public void setSlashDamageBonus(double bonus) {
+        this.slashDamageBonus = bonus;
+    }
+
+    private double calculateAtk() {
+        double Atk = 35 + baseStr * 5;
         if (equippedSword != null) {
-            Atk += equippedSword.getBaseAtk() * (1 + 0.1 * Level);
+            Atk += equippedSword.getBaseAtk();
         }
-
         return Atk;
     }
 
@@ -52,107 +97,179 @@ class Warrior {
         if (equippedHeavyArmor != null) {
             this.baseDef += equippedHeavyArmor.getBaseDef();
         }
+        this.Level = level;
     }
 
-    public void DmgTaken(double damage) {
-        double actualDmg = Math.max(0, damage - getMaxDef());
+    public void dmgTaken(double damage) {
+        double actualDmg = Math.max(0, damage);
         this.baseHp -= actualDmg;
+
+        if (baseHp <= 0) {
+            this.baseHp = 0;
+            System.out.println("Wizard death....");
+        }
     }
 
     public void printStats() {
-        System.out.println("JohnSmith Lv: " + Level + " | Atk: " + CalculateAtk() +
-                " | HP: " + getMaxHp() + " | Def: " + getMaxDef() + " | Mana: " +
-                "| BaseSpeed: " );
+        System.out.println(
+                "Warrior Lv: " + Level +
+                        " | ATK: " + calculateAtk() +
+                        " | HP: " + getMaxHp() +
+                        " | STR: " + strength() +
+                        " | DEF: " + getMaxDef() +
+                        " | Slash Bonus: " + slashDamageBonus);
     }
 
+    private double strength() {
+        return baseStr + (1 * Level);
+    }
 
     private double getMaxHp() {
-        return baseHp + (20 * Level);
-    }
-    public double getBaseHp() {
-        return baseHp;
+        return baseHp ;
     }
 
-    private double getMaxDef() {
+    public double getMaxDef() {
         return baseDef;
     }
 
-    public static void main(String[] args) {
-        Sword sword = new Sword(990, 1);
-        HeavyArmor HeavyArmor = new HeavyArmor(100, 1);
-
-        Wizard Wizard = new Wizard(100, 5000);
-        Warrior johnSmith = new Warrior(10, 1000, 0);
-
-        johnSmith.PVP(Wizard);
+    public void equipSword(Sword sword) {
+        this.equippedSword = sword;
+        updateStats();
+    }
+    public void equipHeavyArmor(HeavyArmor heavyArmor) {
+        this.equippedHeavyArmor = heavyArmor;
+        updateStats();
+    }
+    public void PVP(Wizard wizard) {
+        printStats();
+        wizard.printWizardStats();
         System.out.println();
-        System.out.println("BUFF WITH OP MUSIC AND GET LEGENDARY EQUIPMENT!!!!!");
-        System.out.println();
-        johnSmith.equipSword(sword);
-        johnSmith.equipHeavyArmor(HeavyArmor);
 
-        while (johnSmith.getBaseHp() > 0 && Wizard.getWizardHp() > 0) {
-            johnSmith.PVP(Wizard);
+        double damageDealt = calculateAtk() - wizard.getMaxDef();
+        double damageTaken = wizard.calculateAtk() - getMaxDef();
 
-            if (johnSmith.getBaseHp() <= 0) {
-                System.out.println();
-                System.out.println("JohnSmith Hp: 0");
-                System.out.println("JohnSmith has been defeated!");
-                break;
-            }
-
-            if (Wizard.getWizardHp() <= 0) {
-                System.out.println();
-                System.out.println("Wizard Hp: 0.0 "+"JohnSmith Hp:" +johnSmith.getBaseHp());
-                System.out.println("JohnSmith is victory!");
-                break;
-            }
+        if (damageDealt <= 0) {
+            System.out.println("Warrior dealt 0 damage to the Wizard.");
+        } else {
+            wizard.dmgTaken(damageDealt);
+            System.out.println("Warrior dealt " + damageDealt + " damage to the Wizard.");
         }
 
+        if (damageTaken <= 0) {
+            System.out.println("Wizard dealt 0 damage to the Warrior.");
+        } else {
+            dmgTaken(damageTaken);
+            System.out.println("Warrior took " + damageTaken + " damage from the Wizard.");
+        }
 
+        if (wizard.getBaseHp() <= 0) {
+            System.out.println();
+            System.out.println("Wizard death....");
+        }
+
+        System.out.println();
     }
+
 }
 
-record Sword(double baseAtk, double runSpeedDecrease) {
-    public double getBaseAtk() {
-        return baseAtk;
+class Wizard extends GameCharacter {
+    private final double wizardMp;
+    private double wizardIntelligence;
+    private double wizardDef;
+    private double fireballBonus;
+
+    public Wizard(double level, double wizardHp, double wizardMp, double wizardIntelligence, double wizardDef) {
+        super(level, wizardHp);
+        this.wizardMp = wizardMp;
+        this.wizardIntelligence = wizardIntelligence;
+        this.wizardDef = wizardDef;
     }
-}
-
-record HeavyArmor(double baseDef, double runSpeedDecrease) {
-    public double getBaseDef() {
-        return baseDef;
+    public double getMaxDef() {
+        return wizardDef;
     }
-}
-
-class Wizard {
-    private final double WizardLv;
-    private double WizardHp;
-
-    public Wizard(double WizardLv, double WizardHp) {
-        this.WizardLv = WizardLv;
-        this.WizardHp = WizardHp;
-    }
-
-    public double CalculateAtk() {
-        double baseAttack = 0;
-        return baseAttack + (WizardLv * 3);
-    }
-
-    public void DmgTaken(double damage) {
+    public void dmgTaken(double damage) {
         double actualDmg = Math.max(0, damage);
-        this.WizardHp -= actualDmg;
-        if(WizardHp<0){
-            this.WizardHp=0;
+        this.baseHp -= actualDmg;
+        if (baseHp < 0) {
+            this.baseHp = 0;
         }
+    }
+
+    public double calculateAtk() {
+        return getLevel() * (3 + fireballBonus);
+    }
+
+    public void equipAccessory(Accessory accessory) {
+        accessory.applyEffect(this);
+    }
+
+    public void increaseIntelligence(double value) {
+        this.wizardIntelligence += value;
+    }
+
+    public void increaseMagicDef(double value) {
+        this.wizardDef += value;
+    }
+
+    public void setFireballBonus(double bonus) {
+        this.fireballBonus = bonus;
     }
 
     public void printWizardStats() {
-        System.out.println("Wizard   Lv: " + WizardLv + " | Atk: " + CalculateAtk() + " | HP: " + WizardHp + " |");
+        System.out.println(
+                "Wizard Lv: " + level +
+                        " | ATK: " + calculateAtk() +
+                        " | HP: " + getBaseHp() +
+                        " | MP: " + wizardMp +
+                        " | INT: " + wizardIntelligence +
+                        " | DEF: " + getMaxDef() +
+                        " | Fireball Bonus: " + fireballBonus);
     }
 
 
-    public double getWizardHp() {
-        return WizardHp;
+}
+
+class GameMain {
+    public static void main(String[] args) {
+        Sword sword = new Sword(180);
+        HeavyArmor heavyArmor = new HeavyArmor(90);
+
+        Warrior warrior = new Warrior(20, 800, 0, 20);
+        Wizard wizard = new Wizard(50, 400, 100, 0, 40);
+
+        warrior.PVP(wizard);
+
+        System.out.println("Warrior equips Strength Ring");
+        warrior.equipAccessory(new StrengthRing());
+        warrior.equipAccessory(new Glove());
+
+        System.out.println("Wizard equips Glove");
+        wizard.equipAccessory(new Glove());
+        System.out.println();
+
+        warrior.PVP(wizard);
+
+        System.out.println();
+        System.out.println("Warrior gets Sword and Armor");
+        System.out.println();
+        warrior.equipSword(sword);
+        warrior.equipHeavyArmor(heavyArmor);
+
+        while (warrior.getBaseHp() > 0 && wizard.getBaseHp() > 0) {
+            warrior.PVP(wizard);
+
+            if (warrior.getBaseHp() <= 0) {
+                System.out.println();
+                System.out.println("Warrior Hp: 0");
+                System.out.println("Warrior has been defeated!");
+                break;
+            }
+            if (wizard.getBaseHp() <= 0) {
+                System.out.println();
+                System.out.println("Wizard Hp: 0.0 | Warrior Hp:" + warrior.getBaseHp());
+                System.out.println("Warrior is victorious!");
+                break;
+            }
+        }
     }
 }

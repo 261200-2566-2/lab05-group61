@@ -10,9 +10,6 @@ Equipment:
 Weapon: Sword
 Armor Heavy armor
 Accessory: [Empty 1], [Empty 2]
-Operation:
-Equip:เลือกอุปกรณ์มีใน inventory เพื่อสวมใส่
-AutomaticRecoverDevice:อุปกรณ์ที่สามารถใช้ ยาฟื้นฟูHPและMPให้แก่ตัวละครโดยอัตโนมัติ
 
 2.Class Wizard:
 Level:เลเวลของตัวละคร
