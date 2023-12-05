@@ -1,0 +1,37 @@
+1. Class Warrior:
+Level:เลเวลของตัวละคร
+HP: ค่าพลังชีวิตของตัวละคร
+Strength: ปริมาณการสร้างความเสียหายทางกายภาพ
+Def: ลดความเสียหายที่ได้รับ
+Ability:
+Slash: การโจมตีพื้นฐาน เพื่อสร้างความเสียหายกายภาพ
+Block: ลดความเสียหายที่ได้รับชั่วคราว
+Equipment:
+Weapon: Sword
+Armor Heavy armor
+Accessory: [Empty 1], [Empty 2]
+
+2.Class Wizard:
+Level:เลเวลของตัวละคร
+HP: ค่าพลังชีวิตของตัวละคร
+MP:ใช้ในการสร้างความเสียหายทางเวทย์
+Intelligent: ปริมาณการสร้างความเสียหายทางเวทย์
+Def: ลดความเสียหายที่ได้รับ
+Ability:
+Fireball: การโจมตีพื้นฐาน หักMP ปริมาณหนึ่งเพื่อสร้างความเสียหายเวทย์
+Block: ลดความเสียหายที่ได้รับชั่วคราว
+Equipment:
+Weapon: Staff
+Armor:Magic coat
+Accessory: [Empty 1], [Empty 2]
+
+3.Accessories:
+1.Strength Ring:
+Effect:
+เมื่อสวมใส่ Strength +5 PhysicDef +3 เมื่อSlash จะสร้างความเสียหาย+5%:
+2.Glove:
+Effect:
+เมื่อสวมใส่ Intelligent +5 MagicDef +3 เมื่อFireball จะสร้างความเสียหาย+5% :
+
+
+
